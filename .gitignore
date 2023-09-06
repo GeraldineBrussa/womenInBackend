@@ -1,0 +1,8 @@
+# Ignorar archivos y directorios generados por IntelliJ IDEA
+.idea/
+
+# Ignorar archivos generados por Maven
+target/
+
+# Ignorar archivos generados por compilación Java
+*.class

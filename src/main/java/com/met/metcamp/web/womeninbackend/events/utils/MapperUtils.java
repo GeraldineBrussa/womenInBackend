@@ -3,7 +3,7 @@ package com.met.metcamp.web.womeninbackend.events.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.met.metcamp.web.womeninbackend.events.exceptions.ConvertionException;
+import com.met.metcamp.web.womeninbackend.events.exceptions.ConversionException;
 import com.met.metcamp.web.womeninbackend.events.model.Event;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ public class MapperUtils {
         try {
             return MAPPER.readValue(input, Event.class);
         } catch (JsonProcessingException e) {
-            throw new ConvertionException(e);
+            throw new ConversionException(e);
         }
     }
     public ArrayList<Event> mapToEventList (String input){
@@ -24,21 +24,21 @@ public class MapperUtils {
             TypeReference<ArrayList<Event>> typeRef = new TypeReference<>(){};
             return MAPPER.readValue(input, typeRef);
         } catch (JsonProcessingException e){
-            throw new ConvertionException(e);
+            throw new ConversionException(e);
         }
     }
     public String mapToJson (Event event){
         try {
             return MAPPER.writeValueAsString(event);
         } catch (JsonProcessingException e){
-            throw new ConvertionException(e);
+            throw new ConversionException(e);
         }
     }
     public String mapToJson(ArrayList<Event> eventList){
         try {
             return MAPPER.writeValueAsString(eventList);
         }catch (JsonProcessingException e){
-            throw new ConvertionException(e);
+            throw new ConversionException(e);
         }
     }
 }
