@@ -43,10 +43,10 @@ public class EventController {
             Event event = eventService.getEventById(id);
             return ResponseEntity.ok(event);
         } catch (NotFoundException e) {
-            logger.error(ERROR_MESSAGE_NOT_FOUND + id +": " + e.getMessage());
+            logger.error(ERROR_MESSAGE_NOT_FOUND + " " + id +": " + e.getMessage());
             return handleNotFoundException(e);
         } catch (Exception e) {
-            logger.error(ERROR_MESSAGE_GENERIC_EXCEPTION + "fetching with ID" + id + ": ", e);
+            logger.error(ERROR_MESSAGE_GENERIC_EXCEPTION + "fetching with ID " + id + ": ", e);
             return handleInternalServerError(e);
         }
     }
@@ -80,7 +80,7 @@ public class EventController {
             Event updatedEvent = eventService.updateEvent(id, body);
             return ResponseEntity.ok(updatedEvent);
         } catch (NotFoundException e) {
-            logger.error(ERROR_MESSAGE_NOT_FOUND + id + " when updating an event: " + e.getMessage());
+            logger.error(ERROR_MESSAGE_NOT_FOUND +" " + id + " when updating an event: " + e.getMessage());
             return handleNotFoundException(e);
         } catch (ValidationException e) {
             logger.error(ERROR_MESSAGE_VALIDATION_EXCEPTION + "updating with ID " + id + ": " + e.getMessage());
@@ -105,7 +105,7 @@ public class EventController {
             boolean deleted = eventService.deleteEvent(id);
             return deleted ? ResponseEntity.noContent().header("X-Message", "Event Deleted").build() : ResponseEntity.notFound().build();
         } catch (NotFoundException e) {
-            logger.error(ERROR_MESSAGE_NOT_FOUND + id + " when deleting an event: " + e.getMessage());
+            logger.error(ERROR_MESSAGE_NOT_FOUND + " " + id + " when deleting an event: " + e.getMessage());
             return handleNotFoundException(e);
         } catch (RepoException e){
             logger.error(ERROR_MESSAGE_REPO_EXCEPTION + "deleting with ID " + id + ": " + e.getMessage());
