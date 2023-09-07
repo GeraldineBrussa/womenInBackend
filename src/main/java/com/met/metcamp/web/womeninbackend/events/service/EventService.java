@@ -1,8 +1,8 @@
 package com.met.metcamp.web.womeninbackend.events.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.met.metcamp.web.womeninbackend.events.exceptions.EventAlreadyExistsException;
-import com.met.metcamp.web.womeninbackend.events.exceptions.EventNotFoundException;
+import com.met.metcamp.web.womeninbackend.events.exceptions.AlreadyExistsException;
+import com.met.metcamp.web.womeninbackend.events.exceptions.NotFoundException;
 import com.met.metcamp.web.womeninbackend.events.model.Event;
 import com.met.metcamp.web.womeninbackend.events.repository.EventRepository;
 import com.met.metcamp.web.womeninbackend.events.utils.MapperUtils;
@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Optional;
+
+import static com.met.metcamp.web.womeninbackend.events.utils.AppConstants.*;
 
 @Service
 public class EventService {
@@ -28,12 +30,26 @@ public class EventService {
         this.validationService = validationService;
     }
 
+
     public ArrayList<Event> getAllEvents() {
-        return repository.getEvents();
+        ArrayList<Event> events = repository.getEvents();
+        if (events.isEmpty()) {
+            logger.info(SUCCESS_MESSAGE_FETCHED + ", but the list is empty");
+        } else {
+            logger.info(SUCCESS_MESSAGE_FETCHED);
+        }
+        return events;
     }
 
-    public Optional<Event> getEventById(int id) {
-        return repository.find(id);
+    public Event getEventById(int id) {
+        Optional<Event> event = repository.find(id);
+        if (event.isPresent()) {
+            logger.info("Event found with ID: " + id);
+            return event.get();
+        } else {
+            logger.error(ERROR_MESSAGE_NOT_FOUND + id);
+            throw new NotFoundException(ERROR_MESSAGE_NOT_FOUND + id);
+        }
     }
 
     public Event createEvent(String json) throws JsonProcessingException {
@@ -42,9 +58,12 @@ public class EventService {
         Optional<Event> foundEvent = repository.find(event.getId());
 
         if (foundEvent.isPresent()) {
-            throw new EventAlreadyExistsException("Event already exists");
+            logger.error(ERROR_MESSAGE_ALREADY_EXISTS);
+            throw new AlreadyExistsException(ERROR_MESSAGE_ALREADY_EXISTS);
+
         } else {
             repository.add(event);
+            logger.info(SUCCESS_MESSAGE_CREATED);
             return event;
         }
     }
@@ -56,9 +75,11 @@ public class EventService {
             Event newEventData = mapperUtils.mapToEvent(json);
             validationService.validateUpdateEvent(newEventData);
             repository.update(id, newEventData);
+            logger.info(SUCCESS_MESSAGE_UPDATED);
             return newEventData;
         } else {
-            throw new EventNotFoundException("Event not found with ID: " + id);
+            logger.error(ERROR_MESSAGE_NOT_FOUND + id );
+            throw new NotFoundException(ERROR_MESSAGE_NOT_FOUND + id);
         }
     }
 
@@ -67,9 +88,11 @@ public class EventService {
 
         if (foundEvent.isPresent()) {
             repository.delete(foundEvent.get().getId());
+            logger.info(SUCCESS_MESSAGE_DELETED);
             return true;
         } else {
-            return false;
+            logger.error(ERROR_MESSAGE_NOT_FOUND + id);
+            throw new NotFoundException(ERROR_MESSAGE_NOT_FOUND + id);
         }
     }
 }
