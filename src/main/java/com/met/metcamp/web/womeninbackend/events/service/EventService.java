@@ -34,7 +34,7 @@ public class EventService {
     public ArrayList<Event> getAllEvents() {
         ArrayList<Event> events = repository.getEvents();
         if (events.isEmpty()) {
-            logger.info(SUCCESS_MESSAGE_FETCHED + ", but the list is empty");
+            logger.info(SUCCESS_MESSAGE_FETCHED_LIST_EMPTY);
         } else {
             logger.info(SUCCESS_MESSAGE_FETCHED);
         }
@@ -44,7 +44,7 @@ public class EventService {
     public Event getEventById(int id) {
         Optional<Event> event = repository.find(id);
         if (event.isPresent()) {
-            logger.info("Event found with ID: " + id);
+            logger.info( SUCCESS_MESSAGE_FIND_BY_ID + id);
             return event.get();
         } else {
             logger.error(ERROR_MESSAGE_NOT_FOUND + id);
