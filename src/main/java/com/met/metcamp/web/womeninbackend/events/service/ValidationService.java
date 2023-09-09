@@ -132,7 +132,7 @@ public class ValidationService {
             logger.error(ERROR_MESSAGE_VALIDATION_TICKET_TYPE_ENUM);
             throw new ValidationException(ERROR_MESSAGE_VALIDATION_TICKET_TYPE_ENUM);
         }
-        if (!isValidCurrency(String.valueOf(price.getValue()))) {
+        if (!isValidCurrency(String.valueOf(price.getCurrency()))) {
             logger.error(ERROR_MESSAGE_VALIDATION_CURRENCY_ENUM);
             throw new ValidationException(ERROR_MESSAGE_VALIDATION_CURRENCY_ENUM);
         }
