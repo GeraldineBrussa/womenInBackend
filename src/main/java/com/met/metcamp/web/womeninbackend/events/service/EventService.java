@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static com.met.metcamp.web.womeninbackend.events.utils.AppConstants.*;
+import static com.met.metcamp.web.womeninbackend.events.utils.AppConstants.eventServiceMessages.*;
 
 @Service
 public class EventService {

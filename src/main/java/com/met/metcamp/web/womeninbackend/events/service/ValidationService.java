@@ -1,31 +1,38 @@
 package com.met.metcamp.web.womeninbackend.events.service;
 
 
-
 import com.met.metcamp.web.womeninbackend.events.exceptions.ValidationException;
 import com.met.metcamp.web.womeninbackend.events.model.*;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.met.metcamp.web.womeninbackend.events.utils.AppConstants.validationServiceMessages.*;
+
 @Service
 public class ValidationService {
+
+    private static final Logger logger = LogManager.getLogger(ValidationService.class);
     public void validateCreateEvent(Event event){
         validateId(event.getId());
         validateName(event.getName());
         validateDates(event.getStartDate(), event.getEndDate());
         validateAttendees(event.getAttendees());
-        validateName(event.getOrganizer());
+        validateOrganizer(event.getOrganizer());
         validateEventType(String.valueOf(event.getType()));
         validatePrices(event.getPrices());
     }
-    
+
+
+
     public void validateUpdateEvent (Event event){
         validateName(event.getName());
         validateDates(event.getStartDate(), event.getEndDate());
         validateAttendees(event.getAttendees());
-        validateName(event.getOrganizer());
+        validateOrganizer(event.getOrganizer());
         validateEventType(String.valueOf(event.getType()));
         validatePrices(event.getPrices());
     }
@@ -34,52 +41,74 @@ public class ValidationService {
         LocalDateTime now = LocalDateTime.now();
 
         if (startDate == null || endDate == null) {
-            throw new ValidationException("Both start date and end date are required.");
+            logger.error(ERROR_MESSAGE_VALIDATION_DATES_START_END_REQUIRED);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_DATES_START_END_REQUIRED);
         }
 
         if (startDate.isBefore(now)) {
-            throw new ValidationException("Start date must be in the future.");
+            logger.error(ERROR_MESSAGE_VALIDATION_DATES_START_IN_FUTURE);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_DATES_START_IN_FUTURE);
         }
 
         if (endDate.isBefore(now)) {
-            throw new ValidationException("End date must be in the future.");
+            logger.error(ERROR_MESSAGE_VALIDATION_DATES_END_IN_FUTURE);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_DATES_END_IN_FUTURE);
         }
 
         if (startDate.isAfter(endDate)) {
-            throw new ValidationException("Start date must be before end date.");
+            logger.error(ERROR_MESSAGE_VALIDATION_DATES_START_BEFORE_END);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_DATES_START_BEFORE_END);
         }
     }
 
     public void validateName(String name) {
         if (name.isEmpty()){
-            throw  new ValidationException("Name is required");
+            logger.error(ERROR_MESSAGE_VALIDATION_NAME_REQUIRED);
+            throw  new ValidationException(ERROR_MESSAGE_VALIDATION_NAME_REQUIRED);
         }
         if (name.length() < 5){
-            throw new ValidationException("Name is too short");
+            logger.error(ERROR_MESSAGE_VALIDATION_NAME_LENGTH);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_NAME_LENGTH);
         }
     }
     public void validateId(int id) {
         if( id == 0){
-            throw new ValidationException("ID must not be zero");
+            logger.error(ERROR_MESSAGE_VALIDATION_ID_REQUIRED);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_ID_REQUIRED);
         } else if (id < 0) {
-            throw new ValidationException("ID must be positive");
+            logger.error(ERROR_MESSAGE_VALIDATION_ID_POSITIVE);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_ID_POSITIVE);
+        }
+    }
+    public void validateOrganizer(String organizer) {
+        if (organizer.isEmpty()){
+            logger.error(ERROR_MESSAGE_VALIDATION_ORGANIZER_REQUIRED);
+            throw  new ValidationException(ERROR_MESSAGE_VALIDATION_ORGANIZER_REQUIRED);
+        }
+        if (organizer.length() < 3){
+            logger.error(ERROR_MESSAGE_VALIDATION_ORGANIZER_LENGTH);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_ORGANIZER_LENGTH);
         }
     }
     public void validateAttendees (int  quantity){
         if (quantity <= 0) {
-            throw new ValidationException("The number of event attendees must be greater than 0");
+            logger.error(ERROR_MESSAGE_VALIDATION_ATTENDEES_MINIMUM);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_ATTENDEES_MINIMUM);
         }
         if (quantity > 50) {
-            throw new ValidationException("The number of attendees to the event must be less than or equal to 50");
+            logger.error(ERROR_MESSAGE_VALIDATION_ATTENDEES_MAXIMUM);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_ATTENDEES_MAXIMUM);
         }
     }
     public void validateEventType(String type){
         if (type.isEmpty()){
-            throw new ValidationException("Event type is required");
+            logger.error(ERROR_MESSAGE_VALIDATION_EVENT_TYPE_REQUIRED);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_EVENT_TYPE_REQUIRED);
         }
 
         if (!isValidEventType(type)) {
-            throw new ValidationException("Invalid event type");
+            logger.error(ERROR_MESSAGE_VALIDATION_EVENT_TYPE_ENUM);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_EVENT_TYPE_ENUM);
         }
     }
 
@@ -100,13 +129,16 @@ public class ValidationService {
     }
     private void validatePrice(Price price) {
         if (!isValidTicketType(String.valueOf(price.getType()))) {
-            throw new ValidationException("Invalid ticket type");
+            logger.error(ERROR_MESSAGE_VALIDATION_TICKET_TYPE_ENUM);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_TICKET_TYPE_ENUM);
         }
         if (!isValidCurrency(String.valueOf(price.getValue()))) {
-            throw new ValidationException("Invalid currency");
+            logger.error(ERROR_MESSAGE_VALIDATION_CURRENCY_ENUM);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_CURRENCY_ENUM);
         }
         if (price.getValue() <= 0) {
-            throw new ValidationException("Price value must be greater than 0.");
+            logger.error(ERROR_MESSAGE_VALIDATION_VALUE_PRICE_MINIMUM);
+            throw new ValidationException(ERROR_MESSAGE_VALIDATION_VALUE_PRICE_MINIMUM);
         }
     }
 
@@ -130,36 +162,3 @@ public class ValidationService {
 
 
     }
-/*
-*
-* Mejoras sugeridas por chat gpt para la validación de enums:
-* private <T extends Enum<T>> void validateEnumValue(String value, Class<T> enumClass, String fieldName) {
-    if (StringUtils.isEmpty(value)) {
-        throw new ValidationException(fieldName + " is required");
-    }
-
-    try {
-        Enum.valueOf(enumClass, value);
-    } catch (IllegalArgumentException e) {
-        throw new ValidationException("Invalid " + fieldName);
-    }
-}
-
-public void validateEventType(String type) {
-    validateEnumValue(type, EventType.class, "Event type");
-}
-* public void validatePrice(Price price) {
-    if (price == null) {
-        throw new ValidationException("Price is required");
-    } Esto lo sacaría porque el precio no lo teníamos como obligatorio
-
-    validateEnumValue(String.valueOf(price.getType()), TicketType.class, "Ticket type");
-    validateEnumValue(String.valueOf(price.getCurrency()), Currency.class, "Currency");
-
-    if (price.getValue() <= 0) {
-        throw new ValidationException("Price value must be greater than 0.");
-    }
-}
-*
-*
-* */

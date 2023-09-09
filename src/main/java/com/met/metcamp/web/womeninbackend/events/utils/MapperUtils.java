@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 
 
 import java.util.ArrayList;
+
+import static com.met.metcamp.web.womeninbackend.events.utils.AppConstants.mapperUtilsMessages.*;
+
 @Component
 public class MapperUtils {
     private static  final ObjectMapper MAPPER = new ObjectMapper();
@@ -18,10 +21,10 @@ public class MapperUtils {
     public Event mapToEvent(String input){
         try {
             Event event = MAPPER.readValue(input, Event.class);
-            logger.info("Mapped JSON to Event successfully");
+            logger.info(SUCCESS_MESSAGE_MAPPED_JSON_TO_EVENT);
             return event;
         } catch (JsonProcessingException e) {
-            logger.error("Error mapping JSON to Event: " + e.getMessage(), e);
+            logger.error(ERROR_MESSAGE_MAPPED_JSON_TO_EVENT + e.getMessage(), e);
             throw new ConversionException(e);
         }
     }
@@ -29,30 +32,30 @@ public class MapperUtils {
         try {
             TypeReference<ArrayList<Event>> typeRef = new TypeReference<>() {};
             ArrayList<Event> eventList = MAPPER.readValue(input, typeRef);
-            logger.info("Mapped JSON to Event List successfully");
+            logger.info(SUCCESS_MESSAGE_MAPPED_JSON_TO_EVENT_LIST);
             return eventList;
         } catch (JsonProcessingException e){
-            logger.error("Error mapping JSON to Event List: " + e.getMessage(), e);
+            logger.error(ERROR_MESSAGE_MAPPED_JSON_TO_EVENT_LIST + e.getMessage(), e);
             throw new ConversionException(e);
         }
     }
     public String mapToJson (Event event){
         try {
             String jsonEvent = MAPPER.writeValueAsString(event);
-            logger.info("Mapped Event to JSON successfully");
+            logger.info(SUCCESS_MESSAGE_MAPPED_EVENT_TO_JSON);
             return jsonEvent;
         } catch (JsonProcessingException e){
-            logger.error("Error mapping Event to JSON: " + e.getMessage(), e);
+            logger.error(ERROR_MESSAGE_MAPPED_EVENT_TO_JSON + e.getMessage(), e);
             throw new ConversionException(e);
         }
     }
     public String mapToJson(ArrayList<Event> eventList){
         try {
             String jsonEventList = MAPPER.writeValueAsString(eventList);
-            logger.info("Mapped Event List to JSON successfully");
+            logger.info(SUCCESS_MESSAGE_MAPPED_EVENT_LIST_TO_JSON);
             return jsonEventList;
         }catch (JsonProcessingException e){
-            logger.error("Error mapping Event List to JSON: " + e.getMessage(), e);
+            logger.error(ERROR_MESSAGE_MAPPED_EVENT_LIST_TO_JSON + e.getMessage(), e);
             throw new ConversionException(e);
         }
     }
