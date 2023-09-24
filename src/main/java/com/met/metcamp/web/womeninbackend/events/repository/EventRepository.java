@@ -4,8 +4,8 @@ import com.met.metcamp.web.womeninbackend.events.exceptions.RepoException;
 import com.met.metcamp.web.womeninbackend.events.model.Event;
 import com.met.metcamp.web.womeninbackend.events.utils.MapperUtils;
 import lombok.Getter;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 
@@ -14,8 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Optional;
-
-import static com.met.metcamp.web.womeninbackend.events.utils.AppConstants.eventRepositoryMessages.*;
 
 @Repository
 public class EventRepository {
@@ -26,62 +24,51 @@ public class EventRepository {
     public EventRepository(MapperUtils mapperUtils){
         this.mapperUtils = mapperUtils;
         this.events = loadEvents();
-        logger.info(INITIALIZED_EVENT_REPOSITORY);
+        logger.info("EventRepository initialized");
     }
 
     private ArrayList<Event> loadEvents() {
         try{
             byte[] bytes = Files.readAllBytes(Paths.get("src/main/resources/repository/events.json"));
             String input = new String(bytes);
-            logger.info(SUCCESS_MESSAGE_LOADED_EVENTS);
+            logger.info("Loaded events from file successfully");
             return this.mapperUtils.mapToEventList(input);
         }catch (IOException io){
-            logger.error(ERROR_MESSAGE_READING_FILE + io.getMessage(), io);
-            throw new RepoException(ERROR_MESSAGE_READING_FILE);
+            logger.error("Error reading file" + io.getMessage(), io);
+            throw new RepoException("Error reading file");
         }
     }
     private void save(){
         try {
             String data = mapperUtils.mapToJson(events);
             Files.writeString(Paths.get("src/main/resources/repository/events.json"), data);
-            logger.info(SUCCESS_MESSAGE_SAVED_EVENTS);
+            logger.info("Saved events to file successfully");
         } catch (IOException io){
-            logger.error(": " + io.getMessage(), io);
-            throw new RepoException(ERROR_MESSAGE_WRITING_FILE);
+            logger.error("Error writing file: " + io.getMessage(), io);
+            throw new RepoException("Error writing file");
         }
     }
     public Optional<Event> find (int id){
-        Optional<Event> result = Optional.empty();
-        for (Event e: events){
-            if (e.getId() == id){
-                result = Optional.of(e);
-            }
-        }
-        logger.info(SUCCESS_MESSAGE_FOUND_EVENT_BY_ID + id);
-        return result;
+        return events.stream()
+                .filter(event -> event.getId() == id)
+                .findFirst();
     }
     public void add (Event newEvent){
         events.add(newEvent);
-        logger.info(SUCCESS_MESSAGE_ADDED + newEvent.getId());
         save();
     }
     public void delete (int id){
-        Optional<Event> foundEvent = find(id);
-        if (foundEvent.isPresent()){
-            events.remove(foundEvent.get());
-            logger.info(SUCCESS_MESSAGE_DELETED + id);
+        find(id).ifPresent(event -> {
+            events.remove(event);
             save();
-        }
+        });
     }
     public void update(int id, Event updateInfo){
-        Optional<Event> optionalEvent = find(id);
-        if (optionalEvent.isPresent()){
-            Event foundEvent = optionalEvent.get();
+        find(id).ifPresent(foundEvent -> {
             events.remove(foundEvent);
             foundEvent.update(updateInfo);
             events.add(foundEvent);
-            logger.info(SUCCESS_MESSAGE_UPDATED + id);
             save();
-        }
+        });
     }
 }
