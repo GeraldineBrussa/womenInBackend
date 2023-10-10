@@ -12,6 +12,9 @@ public class EndDateAfterStartDateValidation  implements ConstraintValidator<End
 
     @Override
     public boolean isValid(Event event, ConstraintValidatorContext context) {
+        if (event.getEndDate() == null || event.getStartDate() == null){
+            return true;
+        }
         return event.getEndDate().isAfter(event.getStartDate());
     }
 }

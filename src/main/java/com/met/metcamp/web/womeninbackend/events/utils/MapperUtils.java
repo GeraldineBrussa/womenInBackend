@@ -14,9 +14,9 @@ import java.util.ArrayList;
 
 @Component
 public class MapperUtils {
-    private static  final ObjectMapper MAPPER = new ObjectMapper();
+    public static  final ObjectMapper MAPPER = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(MapperUtils.class);
-    public Event mapToEvent(String input){
+    public static Event mapToEvent(String input){
         try {
             Event event = MAPPER.readValue(input, Event.class);
             logger.info("Mapped JSON to Event successfully");
@@ -26,32 +26,29 @@ public class MapperUtils {
             throw new ConversionException(e);
         }
     }
-    public ArrayList<Event> mapToEventList (String input){
+    public static ArrayList<Event> mapToEventList (String input){
         try {
             TypeReference<ArrayList<Event>> typeRef = new TypeReference<>() {};
-            ArrayList<Event> eventList = MAPPER.readValue(input, typeRef);
             logger.info("Mapped JSON to Event List successfully");
-            return eventList;
+            return MAPPER.readValue(input, typeRef);
         } catch (JsonProcessingException e){
             logger.error("Error mapping JSON to Event List: %s", e);
             throw new ConversionException(e);
         }
     }
-    public String mapToJson (Event event){
+    public static String mapToJson (Event event){
         try {
-            String jsonEvent = MAPPER.writeValueAsString(event);
             logger.info("Mapped Event to JSON successfully");
-            return jsonEvent;
+            return MAPPER.writeValueAsString(event);
         } catch (JsonProcessingException e){
             logger.error("Error mapping Event to JSON: %s", e);
             throw new ConversionException(e);
         }
     }
-    public String mapToJson(ArrayList<Event> eventList){
+    public static String mapToJson(ArrayList<Event> eventList){
         try {
-            String jsonEventList = MAPPER.writeValueAsString(eventList);
             logger.info("Mapped Event List to JSON successfully");
-            return jsonEventList;
+            return MAPPER.writeValueAsString(eventList);
         }catch (JsonProcessingException e){
             logger.error("Error mapping Event List to JSON: %s", e);
             throw new ConversionException(e);

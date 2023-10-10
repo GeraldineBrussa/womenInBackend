@@ -7,12 +7,10 @@ import com.met.metcamp.web.womeninbackend.events.utils.MapperUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -25,18 +23,13 @@ public class ErrorHandler {
         logger.error("Internal Exception: {}", e.getMessage(), e);
         return ResponseEntity.internalServerError().body(Map.of("message", "Internal error"));
     }
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException e, WebRequest request) {
-        logger.error("Error: {}", e.getMessage(), e);
-        return ResponseEntity.badRequest().body("Request JSON is not valid.");
-    }
     @ExceptionHandler(ApiException.class)
     protected ResponseEntity<Map<String, Object>> apiExceptionHandler(ApiException e) {
         logger.error(e.getMessage(), e);
         return ResponseEntity.status(e.getStatus()).body(Map.of("message", e.getMessage()));
     }
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException e) {
+    public ResponseEntity<Map<String, Object>> validationExceptionsHandle(MethodArgumentNotValidException e) {
         logger.error("Validation errors: {}", e.getMessage(), e);
         List<String> errors = e.getBindingResult().getAllErrors().stream()
                 .map(ObjectError::getDefaultMessage)

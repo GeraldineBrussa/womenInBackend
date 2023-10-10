@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 @Service
 public class EventService {
@@ -20,21 +21,15 @@ public class EventService {
     public ArrayList<Event> getAllEvents() {
         return repository.getEvents();
     }
-    public Event getEventById(int id) {
+    public Event getEventById(UUID id) {
         return repository.find(id)
                 .orElseThrow(() -> new ApiException(404, String.format("Event with ID %s not found", id)));
     }
     public Event createEvent(Event event) {
-        repository.find(event.getId()).ifPresentOrElse(
-                existingEvent -> {
-                    throw new ApiException(409, String.format("Event with ID %s already exists when creating an " +
-                            "event", event.getId()));
-                },
-                () -> repository.add(event)
-        );
+        repository.add(event);
         return event;
     }
-    public Event updateEvent(int id, Event event) {
+    public Event updateEvent(UUID id, Event event) {
         return repository.find(id)
                 .map(foundEvent -> {
                     repository.update(id, event);
@@ -42,7 +37,7 @@ public class EventService {
                 })
                 .orElseThrow(() -> new ApiException(404, String.format("Event with ID %s not found", id)));
     }
-    public void deleteEvent(int id) {
+    public void deleteEvent(UUID id) {
         repository.find(id)
                 .ifPresentOrElse(
                         foundEvent -> repository.delete(foundEvent.getId()),

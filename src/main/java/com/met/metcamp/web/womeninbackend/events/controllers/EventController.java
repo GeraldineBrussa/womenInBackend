@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 
 @RestController
@@ -24,7 +25,7 @@ public class EventController {
                 : ResponseEntity.ok(Map.of("events", eventService.getAllEvents()));
     }
     @GetMapping("/{id}")
-    public ResponseEntity<Map<String, Event>> getEventById(@PathVariable int id) {
+    public ResponseEntity<Map<String, Event>> getEventById(@PathVariable UUID id) {
         return ResponseEntity.ok(Map.of("event", eventService.getEventById(id)));
     }
     @PostMapping
@@ -32,11 +33,11 @@ public class EventController {
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("event", eventService.createEvent(event)));
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Event>> updateEventById(@PathVariable int id, @Valid @RequestBody Event event) {
+    public ResponseEntity<Map<String, Event>> updateEventById(@PathVariable UUID id, @Valid @RequestBody Event event) {
         return ResponseEntity.ok(Map.of("event", eventService.updateEvent(id, event)));
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteEventById(@PathVariable int id) {
+    public ResponseEntity<Object> deleteEventById(@PathVariable UUID id) {
         eventService.deleteEvent(id);
         return ResponseEntity.noContent().header("X-Message", String.format("Event with ID %s successfully deleted", id)).build();
     }

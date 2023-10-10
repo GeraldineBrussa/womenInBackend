@@ -6,19 +6,20 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.met.metcamp.web.womeninbackend.events.annotations.EndDateAfterStartDate;
-import com.met.metcamp.web.womeninbackend.events.annotations.EventTypeEnum;
+import com.met.metcamp.web.womeninbackend.events.annotations.EnumValue;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.UniqueElements;
 
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
-import static com.met.metcamp.web.womeninbackend.events.model.EventType.*;
 
 @Getter
 @Setter
@@ -27,11 +28,10 @@ import static com.met.metcamp.web.womeninbackend.events.model.EventType.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @EndDateAfterStartDate
 public class Event {
-    @NotNull(message = "ID is required")
-    @Positive(message = "ID must be positive")
-    private int id;
 
-    @EventTypeEnum(anyOf = {ANIVERSARIO, CLASE_METCAMP, ENCUENTRO_METLAB,})
+    private UUID id;
+
+    @EnumValue(message = "Invalid enum value, must be any of: ANIVERSARIO, CLASE_METCAMP, ENCUENTRO_METLAB")
     private EventType type;
 
     @NotBlank(message = "Name is required")
@@ -55,7 +55,7 @@ public class Event {
     private LocalDateTime endDate;
 
     @NotNull(message = "Attendees is required")
-    @Min(value = 0, message = "The number of event attendees must be greater than 0")
+    @Positive(message = "The number of event attendees must be greater than 0")
     @Max(value = 150, message = "The number of attendees to the event must be less than or equal to 150")
     private Integer attendees;
 
@@ -63,8 +63,12 @@ public class Event {
     @Size(min = 3, message = "Organizer name is too short")
     private String organizer;
 
+    @UniqueElements(message = "Multiple prices for same ticket type are not allowed")
+    @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
     private List<@Valid Price> prices;
-
+    public UUID getId() {
+        return id;
+    }
     public void update (@Valid Event newEventData){
         this.type = newEventData.getType() != null ? newEventData.getType() : this.type;
         this.name = newEventData.getName() != null ? newEventData.getName() : this.name;
